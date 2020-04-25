@@ -8,7 +8,6 @@
     <servlet-name>loginServlet</servlet-name>
     <url-pattern>/LoginServlet</url-pattern>
   </servlet-mapping>
-  
   <servlet>
     <servlet-name>registerServlet</servlet-name>
     <servlet-class>servlet.LnR.RegisterServlet</servlet-class>
@@ -17,6 +16,22 @@
     <servlet-name>registerServlet</servlet-name>
     <url-pattern>/RegisterServlet</url-pattern>
   </servlet-mapping>
-  
-  
+  <!-- teacher -->
+  <servlet>
+    <servlet-name>addCourseServlet</servlet-name>
+    <servlet-class>servlet.teacher.AddCourseServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addCourseServlet</servlet-name>
+    <url-pattern>/AddCourseServlet</url-pattern>
+  </servlet-mapping>
+  <!-- student -->
+    <servlet>
+    <servlet-name>showCourseListServlet</servlet-name>
+    <servlet-class>servlet.student.ShowCourseListServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>showCourseListServlet</servlet-name>
+    <url-pattern>/ShowCourseListServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
