@@ -1,14 +1,16 @@
 package domain;
 
 public class Course {
+	private String num;
 	private String name;
 	private int uplimit;
 	private String description;
 	private String teacher;
 	private int choosen;
 	
-	public Course(String name, int uplimit, String description, String teacher, int choosen) {
+	public Course(String num, String name, int uplimit, String description, String teacher, int choosen) {
 		super();
+		this.num = num;
 		this.name = name;
 		this.uplimit = uplimit;
 		this.description = description;
@@ -16,6 +18,14 @@ public class Course {
 		this.choosen = choosen;
 	}
 	
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+
 	public String getName() {
 		return name;
 	}

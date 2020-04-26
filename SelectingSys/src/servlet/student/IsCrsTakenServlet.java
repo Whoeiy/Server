@@ -7,26 +7,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
-
-import domain.Course;
-
 /**
- * Servlet implementation class ShowCourseListServlet
+ * Servlet implementation class IsCrsTaken
  */
-//@WebServlet("/ShowCourseListServlet")
-public class ShowCourseListServlet extends HttpServlet {
+//@WebServlet("/IsCrsTaken")
+public class IsCrsTakenServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	public void init(ServletConfig config) throws ServletException{
@@ -41,7 +33,7 @@ public class ShowCourseListServlet extends HttpServlet {
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ShowCourseListServlet() {
+    public IsCrsTakenServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -53,56 +45,40 @@ public class ShowCourseListServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		response.setCharacterEncoding("UTF-8");
 		
+		String student = request.getParameter("student").trim();
+		String course = request.getParameter("course").trim();
+		
+		student = new String(student.getBytes("iso-8859-1"),"UTF-8");
+		course = new String(course.getBytes("iso-8859-1"),"UTF-8");
+		
 		String uri = "jdbc:mysql://localhost:3306/SelectingSys?"+"user=root&password=Reborn22&characterEncoding=gb2312";
 		Connection con;
 		CallableStatement cstmt;
 		ResultSet rs;
 		String backNews;
-		Course course = null;
-		List<Course> courselist = new ArrayList<Course> ();
-		int flag = 0;
 		
 		try {
 			con = DriverManager.getConnection(uri);
-			cstmt = con.prepareCall("{  call proc_stu_show_course_list(?) }");
-			cstmt.registerOutParameter(1, Types.INTEGER);
+			cstmt = con.prepareCall("{  call proc_stu_is_course_taken(?,?) }");
+			cstmt.setString(1, student);
+			cstmt.setString(2, course);
 			rs = cstmt.executeQuery();
-			flag = cstmt.getInt(1);
 			
-			while(rs.next()) {
-				String num = rs.getString("num");
-				String name = rs.getString("name");
-				String descrip = rs.getString("descrip");
-				String teacher = rs.getString("teacher");
-				int uplimit = rs.getInt("uplimit");
-				int chosen = rs.getInt("chosen");
-				course = new Course(num, name, uplimit, descrip, teacher, chosen);
-				courselist.add(course);
+			if(rs.next()) {
+				backNews = "taken";
+			}else {
+				backNews = "nottaken";
 			}
-			
-			if(flag == 0) {
-				backNews = "连接失败";
-			}else{
-				backNews = "连接成功";
-				con.close();
-			}
-//			if(courselist.size() == 0) {
-//				backNews = "暂无课程";
-//			}
+			con.close();
 		}catch(SQLException exp){
 			exp.printStackTrace();
 			backNews = "数据库连接失败";
 		}
 		
-		// List<Person> --> jsonArrayString
-		JSONArray jsonArr = new JSONArray(courselist);
-		String jsonStr = jsonArr.toString();
-		System.out.println(jsonStr); 
-		
-		// 输出响应结果（JSON格式的字符串）
 		PrintWriter out = response.getWriter();
-		out.write(jsonStr);
-		response.flushBuffer();	
+		out.write(backNews);
+		response.flushBuffer();
+		out.close();	
 	}
 
 	/**

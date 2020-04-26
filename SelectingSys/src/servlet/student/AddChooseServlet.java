@@ -1,4 +1,4 @@
-package servlet.teacher;
+package servlet.student;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,13 +15,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import domain.Choose;
 import domain.Course;
 
 /**
- * Servlet implementation class AddCourseServlet
+ * Servlet implementation class AddChooseServlet
  */
-//@WebServlet("/AddCourseServlet")
-public class AddCourseServlet extends HttpServlet {
+//@WebServlet("/AddChooseServlet")
+public class AddChooseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	public void init(ServletConfig config) throws ServletException{
@@ -32,23 +33,14 @@ public class AddCourseServlet extends HttpServlet {
 		}
 		catch(Exception e){}
 	}
-	
-	public String handleString(String s){
-		try {
-			byte bb[] = s.getBytes("UTF-8");
-			s = new String(bb);
-		}
-		catch(Exception ee) {}
-		return s;
-	}
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-//    public AddCourseServlet() {
-//        super();
+    public AddChooseServlet() {
+        super();
         // TODO Auto-generated constructor stub
-//    }
+    }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -62,21 +54,21 @@ public class AddCourseServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
 		response.setCharacterEncoding("UTF-8");
 		
-		String name, descrip, teachernum;
+		String student, course, time;
 		int uplimit;
 		
-		name = request.getParameter("name");
-		uplimit = Integer.parseInt(request.getParameter("uplimit"));
-		descrip = request.getParameter("descrip");
-		teachernum = request.getParameter("teachernum");
+		student= request.getParameter("student");
+		course = request.getParameter("course");
+		time = request.getParameter("datetime");
 		
-		name = new String(name.getBytes("iso-8859-1"),"UTF-8");
-		descrip = new String(descrip.getBytes("iso-8859-1"),"UTF-8");
-		teachernum = new String(teachernum.getBytes("iso-8859-1"),"UTF-8");
+		student = new String(student.getBytes("iso-8859-1"),"UTF-8");
+		course = new String(course.getBytes("iso-8859-1"),"UTF-8");
+		time= new String(time.getBytes("iso-8859-1"),"UTF-8");
 		
-		Course course = new Course(null, name, uplimit, descrip, teachernum, 1);
+		Choose choose = new Choose(student, course, null, time);
 
 		String uri = "jdbc:mysql://localhost:3306/SelectingSys?"+"user=root&password=Reborn22&characterEncoding=gb2312";
 		Connection con;
@@ -86,21 +78,19 @@ public class AddCourseServlet extends HttpServlet {
 		
 		try {
 			con = DriverManager.getConnection(uri);
-			cstmt = con.prepareCall("{  call proc_th_add_course(?,?,?,?,?) }");
-			cstmt.setString(1, course.getName());
-			cstmt.setInt(2, course.getUplimit());
-			cstmt.setString(3, course.getDescription());
-			cstmt.setString(4, course.getTeacher());
-			cstmt.registerOutParameter(5, Types.INTEGER);
+			cstmt = con.prepareCall("{  call proc_stu_add_choose(?,?,?,?) }");
+			cstmt.setString(1, choose.getStudent());
+			cstmt.setString(2, choose.getCourse());
+			cstmt.setString(3, choose.getDatetime());
+			cstmt.registerOutParameter(4, Types.INTEGER);
 			
 			cstmt.executeQuery();
 			
-			// 
-			flag = cstmt.getInt(5);
+			flag = cstmt.getInt(4);
 			if(flag == 0) {
-				backNews = "申请失败";
+				backNews = "选课失败";
 			}else {
-				backNews = "申请成功";
+				backNews = "选课成功";
 				con.close();
 			}
 		}catch(SQLException exp){
