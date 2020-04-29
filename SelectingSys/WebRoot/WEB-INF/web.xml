@@ -25,6 +25,14 @@
     <url-pattern>/AddCourseServlet</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>upLoadServlet</servlet-name>
+    <servlet-class>servlet.teacher.UpLoadServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>upLoadServlet</servlet-name>
+    <url-pattern>/UpLoadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>showCourseListServlet</servlet-name>
     <servlet-class>servlet.student.ShowCourseListServlet</servlet-class>
   </servlet>
@@ -40,12 +48,20 @@
     <servlet-name>isCrsTakenServlet</servlet-name>
     <url-pattern>/IsCrsTakenServlet</url-pattern>
   </servlet-mapping>
-    <servlet>
+  <servlet>
     <servlet-name>addChooseServlet</servlet-name>
     <servlet-class>servlet.student.AddChooseServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>addChooseServlet</servlet-name>
     <url-pattern>/AddChooseServlet</url-pattern>
+  </servlet-mapping>
+    <servlet>
+    <servlet-name>showMyCourseServlet</servlet-name>
+    <servlet-class>servlet.student.ShowMyCourseServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>showMyCourseServlet</servlet-name>
+    <url-pattern>/ShowMyCourseServlet</url-pattern>
   </servlet-mapping>
 </web-app>

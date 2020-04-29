@@ -33,7 +33,7 @@ CREATE TABLE `choose` (
   KEY `choose_course_fk` (`course_no`),
   CONSTRAINT `choose_course_fk` FOREIGN KEY (`course_no`) REFERENCES `course` (`course_no`),
   CONSTRAINT `choose_student_fk` FOREIGN KEY (`student_no`) REFERENCES `student` (`student_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=gbk;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=gbk;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `choose` (
 
 LOCK TABLES `choose` WRITE;
 /*!40000 ALTER TABLE `choose` DISABLE KEYS */;
-INSERT INTO `choose` VALUES (1,'2012002',1,NULL,'2020-04-27 00:57:50');
+INSERT INTO `choose` VALUES (1,'2012002',1,NULL,'2020-04-27 00:57:50'),(2,'2012003',1,NULL,'2020-04-28 00:59:12'),(3,'2012001',1,NULL,'2020-04-28 12:58:11'),(4,'2012004',1,NULL,'2020-04-29 22:32:28'),(5,'2012004',3,NULL,'2020-04-29 22:40:05'),(6,'2012002',3,NULL,'2020-04-29 22:41:50'),(7,'2012001',3,NULL,'2020-04-29 22:47:56'),(8,'2012006',1,NULL,'2020-04-29 22:49:54'),(9,'2012006',3,NULL,'2020-04-29 22:50:00'),(10,'2012007',1,NULL,'2020-04-29 22:50:51'),(11,'2012007',3,NULL,'2020-04-29 22:50:57');
 /*!40000 ALTER TABLE `choose` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,7 +99,7 @@ CREATE TABLE `course` (
 
 LOCK TABLES `course` WRITE;
 /*!40000 ALTER TABLE `course` DISABLE KEYS */;
-INSERT INTO `course` VALUES (1,'MySQL数据库',20,'暂无',1,'2012101',0),(3,'JAVA语言设计',80,'暂无',1,'2012102',0);
+INSERT INTO `course` VALUES (1,'MySQL数据库',20,'暂无',1,'2012101',6),(3,'JAVA语言设计',80,'暂无',1,'2012102',5);
 /*!40000 ALTER TABLE `course` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -127,7 +127,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES ('2012001','张三','12384736789',1),('2012002','李四','18475849001',2),('2012003','王五','18273940291',3),('2012004','王网','1827364957483',1);
+INSERT INTO `student` VALUES ('2012001','张三','12384736789',1),('2012002','李四','18475849001',2),('2012003','王五','18273940291',3),('2012004','王网','1827364957483',1),('2012006','三三','182736485940',1),('2012007','呜呜','271810382718',1);
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -152,7 +152,7 @@ CREATE TABLE `teacher` (
 
 LOCK TABLES `teacher` WRITE;
 /*!40000 ALTER TABLE `teacher` DISABLE KEYS */;
-INSERT INTO `teacher` VALUES ('2012101','张三三','182739405932'),('2012102','李啦啦','182736489003');
+INSERT INTO `teacher` VALUES ('2012101','张三三','182739405932'),('2012102','李啦啦','182736489003'),('2012103','王伟','23491283749'),('2012104','张五','182736489302');
 /*!40000 ALTER TABLE `teacher` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +176,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('2012001','123456'),('2012002','123456'),('2012003','12345678'),('2012004','123456'),('2012101','123456'),('2012102','123456');
+INSERT INTO `user` VALUES ('2012001','123456'),('2012002','123456'),('2012003','12345678'),('2012004','123456'),('2012006','123456'),('2012007','123456'),('2012101','123456'),('2012102','123456'),('2012103','123456'),('2012104','123456');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -271,6 +271,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_stu_add_choose`(in num char(10
 begin
     set flag=0;
     insert into choose values(null, num, course, null, time);
+    update course set chosen = chosen+1 where course_no = course;
     set flag=1;
 end ;;
 DELIMITER ;
@@ -292,6 +293,30 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_stu_is_course_taken`(in num ch
     READS SQL DATA
 begin
     select * from choose where student_no = num and course_no = course;
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `proc_stu_my_choose` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_stu_my_choose`(in num char(10), out flag int)
+    MODIFIES SQL DATA
+begin
+    set flag=0;
+    select choose.course_no as num, course.course_name as name, course.description as descrip, teacher.teacher_name as teacher
+    from course, teacher, choose
+    where status = 1 and course.teacher_no = teacher.teacher_no and choose.course_no = course.course_no and choose.student_no = num;
+    set flag=1;
 end ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -332,13 +357,13 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_th_add_course`(in name char(10), in uplimit int, in descrip text, in teachernum char(10), out flag int)
     MODIFIES SQL DATA
 begin
     set flag=0;
-    insert into course values(null, name, uplimit, descrip, default, teachernum);
+    insert into course values(null, name, uplimit, descrip, default, teachernum,0);
     set flag=1;
 end ;;
 DELIMITER ;
@@ -356,4 +381,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-27  1:13:55
+-- Dump completed on 2020-04-29 23:02:37

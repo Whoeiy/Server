@@ -67,6 +67,7 @@ public class RegisterServlet extends HttpServlet {
 		String pswd = handleString(request.getParameter("pswd"));
 		String contact = handleString(request.getParameter("contact"));
 		String identity = handleString(request.getParameter("identity"));
+		
 		if(identity.equals("0")) {		// teacher
 			teacher = new Teacher(num, name, contact);
 			user = new User(num, pswd);
@@ -102,7 +103,6 @@ public class RegisterServlet extends HttpServlet {
 			}
 			cstmt.executeQuery();
 			
-			// 
 			flag = cstmt.getInt(4);
 			if(flag == 0) {
 				backNews = "注册失败";

@@ -5,8 +5,11 @@ import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -14,6 +17,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
 
 import domain.Choose;
 import domain.Course;
@@ -73,8 +78,11 @@ public class AddChooseServlet extends HttpServlet {
 		String uri = "jdbc:mysql://localhost:3306/SelectingSys?"+"user=root&password=Reborn22&characterEncoding=gb2312";
 		Connection con;
 		CallableStatement cstmt;
+		ResultSet rs;
 		String backNews;
 		int flag = 0;
+		Course crs;
+		List<Course> courselist = new ArrayList<>();
 		
 		try {
 			con = DriverManager.getConnection(uri);
@@ -91,6 +99,23 @@ public class AddChooseServlet extends HttpServlet {
 				backNews = "选课失败";
 			}else {
 				backNews = "选课成功";
+				
+				cstmt = con.prepareCall("{  call proc_stu_show_course_list(?) }");
+				cstmt.registerOutParameter(1, Types.INTEGER);
+				rs = cstmt.executeQuery();
+				flag = cstmt.getInt(1);
+				
+				while(rs.next()) {
+					String num = rs.getString("num");
+					String name = rs.getString("name");
+					String descrip = rs.getString("descrip");
+					String teacher = rs.getString("teacher");
+					int uplim = rs.getInt("uplimit");
+					int chosen = rs.getInt("chosen");
+					crs = new Course(num, name, uplim, descrip, teacher, chosen);
+					courselist.add(crs);
+				}
+				
 				con.close();
 			}
 		}catch(SQLException exp){
@@ -98,8 +123,14 @@ public class AddChooseServlet extends HttpServlet {
 			backNews = "数据库连接失败";
 		}
 		
+		// List<Person> --> jsonArrayString
+		JSONArray jsonArr = new JSONArray(courselist);
+		String jsonStr = jsonArr.toString();
+		System.out.println(jsonStr); 
+		String tmp = jsonStr + "&" + backNews;
+		
 		PrintWriter out = response.getWriter();
-		out.write(backNews);
+		out.write(tmp);
 		response.flushBuffer();
 		out.close();
 	}

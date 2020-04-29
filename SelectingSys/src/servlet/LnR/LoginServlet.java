@@ -117,5 +117,6 @@ public class LoginServlet extends HttpServlet {
 		out.write(str);
 		response.flushBuffer();
 		out.close();
+		
 	}
 }
